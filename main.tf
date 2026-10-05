@@ -10,7 +10,7 @@ provider "aws" {
   region = "us-east-1"
 }
 resource "aws_s3_bucket" "product_assets" {
-  bucket = "ecommerce-dev-product-assets-gyan-05"
+  bucket = local.bucket_name
 }
 resource "aws_vpc" "main" {
   cidr_block           = "10.0.0.0/16"
@@ -82,6 +82,7 @@ resource "aws_instance" "web" {
     aws_vpc.main
   ]
 }
+data "aws_region" "current" {}
 
 
 
