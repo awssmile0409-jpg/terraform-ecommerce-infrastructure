@@ -1,88 +1,103 @@
 terraform {
+
   required_providers {
+
     aws = {
+
       source  = "hashicorp/aws"
       version = "~> 6.0"
+
     }
+
   }
+
 }
+
 provider "aws" {
+
   region = "us-east-1"
+
 }
+
 resource "aws_s3_bucket" "product_assets" {
+
   bucket = local.bucket_name
+
 }
+
 resource "aws_vpc" "main" {
-  cidr_block           = "10.0.0.0/16"
-  enable_dns_support   = true
-  enable_dns_hostnames = true
+
+  cidr_block = "10.0.0.0/16"
 
   tags = {
-    Name = "ecommerce-dev-vpc"
+
+    Name        = "ecommerce-${var.environment}-vpc"
+    Environment = var.environment
+    Purpose     = "ecommerce-network"
+
   }
+
 }
 
 resource "aws_subnet" "public" {
+
   vpc_id                  = aws_vpc.main.id
   cidr_block              = "10.0.1.0/24"
-  availability_zone       = "us-east-1a"
+  availability_zone       = "${var.aws_region}a"
   map_public_ip_on_launch = true
 
   tags = {
-    Name = "ecommerce-dev-public-subnet"
+
+    Name        = "ecommerce-${var.environment}-public-subnet"
+    Environment = var.environment
+    Purpose     = "ecommerce-public-subnet"
+
   }
+
 }
-resource "aws_launch_template" "web_config" {
-  name_prefix   = "web-config-"
-  image_id      = "ami-0d27e0fb3bac4d724"
-  instance_type = "t3.micro"
-}
-resource "aws_security_group" "web_sg" {
-  name        = "web-server-sg"
-  description = "Allow HTTP and SSH traffic"
+
+resource "aws_security_group" "web" {
+
+  name        = "ecommerce-${var.environment}-web-sg"
+  description = "Security group for E-Commerce web application"
   vpc_id      = aws_vpc.main.id
 
-  # Inbound HTTP access
-  ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+  tags = {
+
+    Name        = "ecommerce-${var.environment}-web-sg"
+    Environment = var.environment
+    Purpose     = "ecommerce-web"
+
   }
 
-  # Inbound SSH access
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"] # Consider restricting this to your specific IP address
-  }
+}
 
-  # Outbound access (allow all traffic out)
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+data "aws_ssm_parameter" "amazon_linux" {
+
+  name = "/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64"
+
+}
+
+resource "aws_instance" "web" {
+
+  count = var.web_instance_count
+
+  ami           = data.aws_ssm_parameter.amazon_linux.value
+  instance_type = "t3.micro"
+
+  subnet_id = aws_subnet.public.id
+
+  vpc_security_group_ids = [
+    aws_security_group.web.id
+  ]
 
   tags = {
-    Name = "web-sg"
-  }
-}
-resource "aws_instance" "web" {
-  subnet_id              = aws_subnet.public.id
-  vpc_security_group_ids = [aws_security_group.web_sg.id]
-  launch_template {
-    id      = aws_launch_template.web_config.id
-    version = "$Latest"
+
+    Name        = "ecommerce-${var.environment}-web-${count.index + 1}"
+    Environment = var.environment
+    Purpose     = "ecommerce-web"
 
   }
-  depends_on = [
-    aws_vpc.main
-  ]
+
 }
 data "aws_region" "current" {}
-
-
-

@@ -2,8 +2,16 @@ variable "environment" {
   description = "Deployment environment for the infrastructure."
   type        = string
   default     = "dev"
-  validation {
-    condition     = contains(["dev", "qa", "prod"], var.environment)
-    error_message = "Environment must be one of: dev, qa, pro d."
-  }
+}
+
+variable "web_instance_count" {
+  description = "Number of web application EC2 instances"
+  type        = number
+  default     = 2
+}
+
+variable "aws_region" {
+  description = "AWS region to deploy the infrastructure"
+  type        = string
+  default     = "us-east-1"
 }
