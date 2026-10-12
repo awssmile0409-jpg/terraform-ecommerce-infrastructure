@@ -43,7 +43,7 @@ resource "aws_subnet" "public" {
 
   vpc_id                  = aws_vpc.main.id
   cidr_block              = "10.0.1.0/24"
-  availability_zone = data.aws_availability_zones.available.names[0]
+  availability_zone       = data.aws_availability_zones.available.names[0]
   map_public_ip_on_launch = true
 
   tags = {
@@ -56,7 +56,7 @@ resource "aws_subnet" "public" {
 
 }
 
-resource "aws_security_group" "web" {
+resource "aws_security_group" "web_sg" {
 
   name        = "ecommerce-${var.environment}-web-sg"
   description = "Security group for E-Commerce web application"
@@ -78,9 +78,9 @@ data "aws_ssm_parameter" "amazon_linux" {
 
 }
 
-data "aws_availability_zones" "available" { 
-  state = "available" 
-  }
+data "aws_availability_zones" "available" {
+  state = "available"
+}
 
 resource "aws_instance" "web" {
 
@@ -92,7 +92,7 @@ resource "aws_instance" "web" {
   subnet_id = aws_subnet.public.id
 
   vpc_security_group_ids = [
-    aws_security_group.web.id
+    aws_security_group.web_sg.id
   ]
 
   tags = {
