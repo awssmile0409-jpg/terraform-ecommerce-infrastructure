@@ -1,10 +1,6 @@
-.terraform/
-*.tfstate
-*.tfstate.*
-.terraform.tfstate.lock.info
-*.tfplan
-tfplan
-*.tfvars
-*.tfvars.json
-.terraformrc
-terraform.rc
+.terraform/ 
+terraform.tfstate 
+terraform.tfstate.*
+.phase-8-state-backup.json
+..phase-10-state-backup.json
+terraform-state-backup.json
