@@ -98,7 +98,7 @@ resource "aws_instance" "web" {
   tags = {
 
     Name        = "ecommerce-${var.environment}-web-${count.index + 1}"
-    Environment = var.environment
+    Environment = var.web_instance_count
     Purpose     = "ecommerce-web"
 
   }
