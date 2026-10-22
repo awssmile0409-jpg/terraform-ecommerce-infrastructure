@@ -19,10 +19,9 @@ provider "aws" {
 
 }
 
-resource "aws_s3_bucket" "product_assets" {
-
-  bucket = local.bucket_name
-
+module "storage" {
+  source      = "./modules/storage"
+  bucket_name = local.bucket_name
 }
 
 resource "aws_vpc" "main" {
@@ -106,7 +105,7 @@ resource "aws_instance" "web" {
     create_before_destroy = true
 
     replace_triggered_by = [
-      aws_security_group.web
+      aws_security_group.web_sg
     ]
   }
 }
