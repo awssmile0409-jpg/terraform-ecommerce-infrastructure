@@ -19,6 +19,7 @@ provider "aws" {
 
 }
 
+
 module "storage" {
   source      = "./modules/storage"
   bucket_name = local.bucket_name
@@ -108,4 +109,8 @@ resource "aws_instance" "web" {
     ]
   }
 }
+
 data "aws_region" "current" {}
+
+
+
