@@ -4,3 +4,4 @@ terraform.tfstate.*
 .phase-8-state-backup.json
 ..phase-10-state-backup.json
 terraform-state-backup.json
+.state-backup.json
