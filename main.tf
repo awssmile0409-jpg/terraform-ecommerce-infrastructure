@@ -103,7 +103,6 @@ resource "aws_instance" "web" {
   }
   lifecycle {
     create_before_destroy = true
-
     replace_triggered_by = [
       aws_security_group.web_sg
     ]
